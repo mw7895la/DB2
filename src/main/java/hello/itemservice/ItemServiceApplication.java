@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 
 //@Import(MemoryConfig.class)
-@Import(JdbcTemplateV1Config.class)
+@Import(JdbcTemplateV3Config.class)
 @SpringBootApplication(scanBasePackages = "hello.itemservice.web")	//이 Web이하만 컴포넌트 스캔하고 나머진 수동 등록하겠다 !
 public class ItemServiceApplication {
 

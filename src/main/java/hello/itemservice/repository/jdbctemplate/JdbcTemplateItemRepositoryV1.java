@@ -41,6 +41,7 @@ public class JdbcTemplateItemRepositoryV1 implements ItemRepository {
         //Jdbc 템플릿을 쓸 때 DB에서 생성해준 id 값을 가져오려면 KeyHolder 필요
         KeyHolder keyHolder = new GeneratedKeyHolder();     //DB에서 만든 id값을 select 한 것.
 
+        //tempalte.update는 영향받은 로우 수를 반환한다
         template.update(connection-> {
             //커넥션 넘기고 keyHolder 넘기고..   keyHolder 때문에 로직을 좀 더 넣어야 한다. 그래서 아래처럼 한 것.
 
@@ -51,7 +52,7 @@ public class JdbcTemplateItemRepositoryV1 implements ItemRepository {
             pstmt.setString(1, item.getItemName());
             pstmt.setInt(2, item.getPrice());
             pstmt.setInt(3, item.getQuantity());
-            return pstmt;
+            return pstmt;       //return 된 pstmt를 가지고 jdbctemplate이 실행하겠지.
         },keyHolder);           //여기까지가 데이터베이스 insert
 
 
@@ -66,7 +67,7 @@ public class JdbcTemplateItemRepositoryV1 implements ItemRepository {
         String sql = "update item set item_name=?, price=?, quantity=? where id=?";
 
         template.update(sql, updateParam.getItemName(), updateParam.getPrice(), updateParam.getQuantity(), itemId);
-
+        //sql문을 가지고 template로 가서 쿼리를 수행한다.
     }
 
     @Override
@@ -74,6 +75,8 @@ public class JdbcTemplateItemRepositoryV1 implements ItemRepository {
         String sql = "select id, item_name, price ,quantity from item where id =?";
         try {
             Item item = template.queryForObject(sql, itemRowMapper(), id);
+            //첫 번째 파라미터 sql문과 RowMapper에서 수행된걸 가지고 JdbcTemplate의 queryForObject로 간다.
+            //거기서도 결국 query() 메소드로 가서 sql로 doInstatement를 수행한다. sql 쿼리 수행후 rs에 담고 그 rs를 RowMapper에 넣어 추출 후 return 한다.
             //결과 resultSet을 item 객체로 바꾸는 코드가 필요  , queryForObject는 결과 하나 가져올때 사용
             //queryForObject는 결과가 없으면 Exception이 터진다.
             //itemRowMapper()를 통해서 실행하면 데이터에 대한 매핑결과를 받아서 item으로 받은것
@@ -83,6 +86,7 @@ public class JdbcTemplateItemRepositoryV1 implements ItemRepository {
         }
 
         /* 익명 구현 객체로 하는 방법. 물론 예외는 해줘야함.
+        //RowMapper 의 mapRow는 오버라이드 된 여기가 실행 될 것.
         Item item = template.queryForObject(sql, new RowMapper<Member>(){
             @Override
             public Item mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -97,7 +101,7 @@ public class JdbcTemplateItemRepositoryV1 implements ItemRepository {
     }
 
     private RowMapper<Item> itemRowMapper() {
-        //데이터베이스의 조회 결과를 객체로 변환할 때 사용. 한개 이상의 결과같은 경우 list를 뽑아주는 코드가 숨겨져있다.
+        //RowMapper는 데이터베이스의 반환 결과인 ResultSet을 객체로 변환해주는 클래스이다.. 한개 이상의 결과같은 경우 list를 뽑아주는 코드가 숨겨져있다.
         //RowMapper에서 만들어진 User 오브젝트는 템플릿이 미리 준비한 List 컬렉션에 추가되며,
         //작업을 마치면 모든 로우에 대한 User 오브젝트를 담고 있는 List 오브젝트가 리턴된다
         return ((rs,rowNum)-> {

@@ -7,60 +7,51 @@ import hello.itemservice.repository.ItemUpdateDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
-import java.sql.PreparedStatement;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 
 /**
- * NamedParameterJdbcTemplate
- * SqlParameterSource
- * - BeanPropertySqlParameterSource
- * - MapSqlParameterSource
- *
- * Map
- *
- * BeanPropertyRowMapper
+ * SimpleJdbcInsert
  */
 @Slf4j
 @Repository
-public class JdbcTemplateItemRepositoryV2 implements ItemRepository {
+public class JdbcTemplateItemRepositoryV3 implements ItemRepository {
 
 //    private final JdbcTemplate template;
     private final NamedParameterJdbcTemplate template;      //이러면 파라미터를 순서가 아닌 이름 기반으로 바인딩 할 수 있다.
-    public JdbcTemplateItemRepositoryV2(DataSource dataSource) {
+    private final SimpleJdbcInsert jdbcInsert;
+    public JdbcTemplateItemRepositoryV3(DataSource dataSource) {
         this.template = new NamedParameterJdbcTemplate(dataSource);
+        this.jdbcInsert = new SimpleJdbcInsert(dataSource)
+                .withTableName("item")
+                .usingGeneratedKeyColumns("id");
+                //.usingColumns("item_name","price","quantity") 생략가능.
+                //SimpleJdbcInsert는 데이터 소스를 통해서 테이블 명을 가지고 메타 데이터를 db에서 읽고 아, 이런 이런 필드가 있구나 하면서 인지한다.
+
+                //withTableName 테이블 이름. usingGeneratedKeyColumns pk 에서 자동으로 키값 생성되는 것.
     }
 
     @Override
     public Item save(Item item) {
-        //이름 기반의 sql 문
-        String sql = "insert into item(item_name, price , quantity) values(:itemName,:price,:quantity)";
-
         SqlParameterSource param = new BeanPropertySqlParameterSource(item);
-        //파라미터로 넘어온 item객체를 가지고 Item 클래스의 필드들과 이름이 같은 파라미터(param)를 만든다
-        //자바빈 프로퍼티 규약을 통해서 자동으로 파라미터 객체를 생성한다고 보면 된다. ex) key = itemName //value = 넘어온 item에 들어있는 itemName 값.
 
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        template.update(sql,param,keyHolder);
+        Number key = jdbcInsert.executeAndReturnKey(param);
 
-        //keyholder를 넘겼기 때문에 꺼낼 수 있다.
-        long Key = keyHolder.getKey().longValue();
-        item.setId(Key);
+        item.setId(key.longValue());
         return item;
     }
 
