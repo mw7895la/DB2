@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--인터페이스가 있는 패키지 경로와 인터페이스 이름-->
+<mapper namespace="hello.itemservice.repository.mybatis.ItemMapper">
+    <!--GeneratedKey 를 생성하는데 그 key값은 id다. id에 값 세팅까지 해준다.-->
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        insert into item (item_name, price, quantity)
+        values (#{itemName}, #{price}, #{quantity})
+    </insert>
+
+    <update id="update">
+        update item
+        set item_name=#{updateParam.itemName},
+            price=#{updateParam.price},
+            quantity=#{updateParam.quantity}
+        where id =#{id}
+
+    </update>
+
+    <!--원래 resultType은  hello.itemservice.domain.Item 처럼 다 적어줘야 하지만 우리가application.properties에서 type-aliases-package를 설정해줬다-->
+    <!-- 쿼리 수행 후 결과를 Item 객체로 findById 메소드의 리턴값으로 바로 던져준다 -->
+    <select id="findById" resultType="Item">
+        select id, item_name, price, quantity
+        from item
+        where id=#{id}
+
+    </select>
+
+    <!--<where> 를 동적으로 넣은 것.  $lt;= 는  <=와 같다.-->
+    <select id="findALl" resultType="Item">
+        select id,item_name,price,quantity
+        from item
+        <where>
+            <if test="itemName != null and itemName != ''">
+                and item_name like concat('%',#{itemName},'%')
+            </if>
+            <if test="maxPrice !=null">
+                and price &lt;= #{maxPrice}
+            </if>
+        </where>
+    </select>
+</mapper>
