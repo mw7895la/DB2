@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface ItemMapper {
     void save(Item item);
 
-    //파라미터가 1개인 경우는 괜찮은데 2개 이상이면 @Param("id) Long id 이런식으로.
+    //파라미터가 1개인 경우는 괜찮은데 2개 이상이면 @Param을 붙여줘야 한다.
     void update(@Param("id") Long id, @Param("updateParam") ItemUpdateDto updateParam);
 
     Optional<Item> findById(Long id);
