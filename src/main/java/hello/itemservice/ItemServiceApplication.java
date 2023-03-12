@@ -14,7 +14,7 @@ import javax.sql.DataSource;
 
 @Slf4j
 //@Import(MemoryConfig.class)
-@Import(JpaConfig.class)
+@Import(SpringDataJpaConfig.class)
 @SpringBootApplication(scanBasePackages = "hello.itemservice.web")    //이 Web이하만 컴포넌트 스캔하고 나머진 수동 등록하겠다 !
 public class ItemServiceApplication {
 
