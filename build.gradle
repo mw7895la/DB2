@@ -29,6 +29,12 @@ dependencies {
 	//JPA 추가
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
+	//QueryDSL
+	implementation 'com.querydsl:querydsl-jpa'
+	annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jpa"
+	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
 	//JdbcTemplate 추가
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 	//MyBatis 추가
@@ -44,3 +50,7 @@ dependencies {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+clean {
+	delete file('src/main/generated')
+}//클린하는 시점에 위 파일이하 디렉토리 지우는것.
