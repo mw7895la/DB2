@@ -29,6 +29,7 @@
     </select>
 
     <!--<where> 를 동적으로 넣은 것.  $lt;= 는  <=와 같다.-->
+    <!--if는 해당조건이 만족하면 구문을 추가하고 where태그 안의 2개의 if중 하나라도 성공하면 각 if문의 쿼리문의 첫 and를 where로 바꿔준다.  2개 다 실패시 where를 만들지 않는다. -->
     <select id="findALl" resultType="Item">
         select id,item_name,price,quantity
         from item

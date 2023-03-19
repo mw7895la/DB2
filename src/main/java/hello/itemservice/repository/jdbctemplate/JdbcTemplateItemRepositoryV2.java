@@ -68,7 +68,7 @@ public class JdbcTemplateItemRepositoryV2 implements ItemRepository {
     public void update(Long itemId, ItemUpdateDto updateParam) {
         String sql = "update item set item_name=:itemName, price=:price, quantity=:quantity where id=:id";
         
-        //save() 에서 처럼  SqlParameterSource param = new BeanPropertySqlParameterSource(item); 을 쓸 수도 있고, 아래처럼도 가능하다
+        //save() 에서 처럼  SqlParameterSource param = new BeanPropertySqlParameterSource(item); 을 쓸 수도 있고(근데 id를 처리하기 힘들다 ItemUpdateDto는 id가 없다), 아래처럼도 가능하다
         //SqlParameterSource 은 sql 파라미터를 관리해주는 인터페이스 인데, MapSqlParameterSource 이 구현체다
         // . . . 찍은게 메서드 체인.
         SqlParameterSource param = new MapSqlParameterSource()
